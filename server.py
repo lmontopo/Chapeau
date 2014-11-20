@@ -9,6 +9,7 @@ def listen(clientsocket):
 	msg = clientsocket.recv(1000)
 	if msg:
 		request = separate(msg)
+		print request
 		if request['type'] == "GET":
 			get(clientsocket, request)
 		if request['type'] == "POST":
@@ -24,13 +25,18 @@ def get(clientsocket, request):
 	read_file = open(page, 'r')
 	read_text = read_file.read()
 	read_file.close()
-	
-	return render(clientsocket, read_text)
+	new_message = read_text %request['query']
+	return render(clientsocket, new_message)
 
 
 # ------- Handles post requests --------
 def post(clientsocket, request):
-	message_file = open('templates/passing_vars.html', 'r')
+	# message_file = open('templates/passing_vars.html', 'r')
+	if request['path'] in routing_dictionary.keys():
+		page = routing_dictionary[request['path']]
+	else:
+		page = 'templates/sorry.html'
+	message_file = open(page, 'r')
 	message_text = message_file.read()
 	message_file.close()
 	new_message = message_text %request['body']
@@ -86,26 +92,28 @@ def parse_function(data):
 	#print parsed_data
 	return parsed_data #returns a dictionary 
 
+routing_dictionary = {}
 
-# ----- Putting everything together! --------
-# pdb.set_trace()
-routing_dictionary = {'/' : 'templates/index.html', '/home' : 'templates/user_info.html', '/get_user_info' : 'templates/get_user_info.html' }
+def go(routing_dict):
 
-#create server socket on port 9999
-serversocket = socket.socket()
-port = 9999
+	global routing_dictionary 
+	routing_dictionary = routing_dict
 
-#this makes it so that there is no time gap in between running my code
-serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+	#create server socket on port 9999
+	serversocket = socket.socket()
+	port = 9999
 
-serversocket.bind(('', port))
-serversocket.listen(5) 	
+	#this makes it so that there is no time gap in between running my code
+	serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-#this loop ensures new clients are always accepted
-#remember each client socket can only handle one http request before closing.
-while True:
-	try:
-		clientsocket, addr = serversocket.accept()
-		listen(clientsocket)
-	except socket.error:
-		break
+	serversocket.bind(('', port))
+	serversocket.listen(5) 	
+
+	#this loop ensures new clients are always accepted
+	#remember each client socket can only handle one http request before closing.
+	while True:
+		try:
+			clientsocket, addr = serversocket.accept()
+			listen(clientsocket)
+		except socket.error:
+			break
