@@ -17,7 +17,7 @@ def second(request, client):
 		header = {'Set-Cookie': 'question2=%s' %request['body']['question2']}
 		server.render(client, 'views/question_3.html', user_answers, header)
 	else:
-		server.render(client, 'views/question_1.html', user_answers)
+		server.render(client, 'views/question_2.html', user_answers)
 
 
 def third(request, client):
@@ -27,15 +27,19 @@ def third(request, client):
 			temp = cookie.split('=')
 			user_answers.update({temp[0] : temp[1]})
 		user_answers.update({'question3' : request['body']['question3']})
-		print user_answers
-		server.render(client, 'views/result.html', user_answers)
+		result = make_decision(user_answers)
+		server.render(client, 'views/result.html', result)
 	else:
-		server.render(client, 'views/question_1.html', user_answers)
+		server.render(client, 'views/question_3.html', user_answers)
 
+def make_decision(user_answers):
+	if user_answers['question3'] != 'NYC':
+		return 'stupid-head.'
+	elif user_answers['question2'] == 'gummybears':
+		return 'SUPERHERO!'
+	
+	return 'normal human...'
 
-
-# def func(dict):
-# 	return "SUPERHERO!"
 
 routing_dict = {'/welcome' : 'views/welcome.html',
 				'/first_question': 'views/question_1.html',
