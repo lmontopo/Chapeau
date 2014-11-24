@@ -55,7 +55,7 @@ def render(clientsocket, path, params, header = None):
 	header_string = ''
 	if header != None:
 		for item in header:
-			header_string = header_string + item + ': ' + header[item] + '; ' + 'domain=10.0.7.65' + ';' + 'path=/' +'\n'
+			header_string = header_string + item + ': ' + header[item] + '; ' + '\n'
 	clientsocket.send('HTTP/1.0 200 OK\n%s \n\n' %header_string)
 	clientsocket.send(new_msg)
 	print 'HTTP/1.0 200 OK\n%s \n\n' %header_string
