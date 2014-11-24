@@ -8,8 +8,8 @@ import urllib
 def listen(clientsocket):
 	msg = clientsocket.recv(1000)
 	if msg:
+		print msg
 		request = separate(msg)
-		print request
 		if request['type'] == "GET":
 			get(clientsocket, request)
 		if request['type'] == "POST":
@@ -23,7 +23,7 @@ def get(clientsocket, request):
 	if request['path'] in routing_dictionary.keys():
 		routing_value = routing_dictionary[request['path']]
 		if type(routing_value) == types.FunctionType:
-			return routing_value(params)
+			return routing_value(request, clientsocket)
 		else:
 			path = routing_value
 			return render(clientsocket, path, params)
@@ -37,7 +37,7 @@ def post(clientsocket, request):
 	if request['path'] in routing_dictionary.keys():
 		routing_value = routing_dictionary[request['path']]
 		if type(routing_value) == types.FunctionType:
-			return routing_value(params, clientsocket)
+			return routing_value(request, clientsocket)
 		else: 
 			path = routing_value 
 			return render(clientsocket, path, params)
@@ -47,36 +47,46 @@ def post(clientsocket, request):
 
 
 # ----- sends http msg and page to client socket, then closes socket -----
-def render(clientsocket, path, params):
-	print params, 'params in render'
+def render(clientsocket, path, params, header = None):
 	message_file = open(path, 'r')
 	message_text = message_file.read()
 	message_file.close()
 	new_msg = message_text % params
-	clientsocket.send('HTTP/1.0 200 OK\n\n')
+	header_string = ''
+	if header != None:
+		for item in header:
+			header_string = header_string + item + ': ' + header[item] + '; ' + 'domain=10.0.7.65' + ';' + 'path=/' +'\n'
+	clientsocket.send('HTTP/1.0 200 OK\n%s \n\n' %header_string)
 	clientsocket.send(new_msg)
+	print 'HTTP/1.0 200 OK\n%s \n\n' %header_string
 	clientsocket.close()
 
 
 def separate(msg):
-	msg = msg.split(' ')
-	request_type = msg[0]
-	full_path = msg[1]
+	msg = msg.split('\r\n')
+	first_line = msg[0].split(' ')
+	request_type = first_line[0]
+	full_path = first_line[1]
 	
 	if full_path.find('?') > 0:
 		full_path = full_path.split('?')
 		path = full_path[0]
 		query = parse_function(full_path[1])
-		print query
 	else:
 		path = full_path
 		query = {}
 
 	raw_body = msg[-1]
-	start = raw_body.find("\r\n\r\n") + 4
-	body = parse_function(raw_body[start:])
+	# start = raw_body.find("\r\n\r\n")
+	body = parse_function(msg[-1])
 
-	separate_request = { 'type': request_type, 'path': path, 'query': query, 'body': body }
+	headers = {}
+	num_headers = len(msg) - 2
+	for i in range(1, num_headers):
+		head = msg[i].split(': ')
+		headers.update({head[0] : head[1]})
+
+	separate_request = { 'type': request_type, 'path': path, 'headers': headers, 'query': query, 'body': body }
 	#print separate_request
 	return separate_request
 
