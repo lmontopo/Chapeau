@@ -1,15 +1,13 @@
-#http server.py - this makes it so that Susan can see what I write to her in her browser. 
 import socket 
-import threading
-import pdb
+import types
 import urllib
+
 
 #------- Receive messages from Clients ----------
 def listen(clientsocket):
 	msg = clientsocket.recv(1000)
 	if msg:
 		request = separate(msg)
-		print request
 		if request['type'] == "GET":
 			get(clientsocket, request)
 		if request['type'] == "POST":
@@ -20,68 +18,89 @@ def listen(clientsocket):
 # ------ Handles get requests ------- 
 def get(clientsocket, request):
 	params = request['query']
-	if request['path'] in routing_dictionary.keys():
+	if request['path'] in routing_dictionary:
 		routing_value = routing_dictionary[request['path']]
-		if type(routing_value) is tuple:
-			print 'here'
-			params = routing_value[0](params)
-			path = routing_value[1]
+		if type(routing_value) == types.FunctionType:
+			return routing_value(request, clientsocket)
 		else:
 			path = routing_value
+			return render(clientsocket, path, params)
+	elif request['path'][-4:] == '.css':
+		path = request['path'][1:]
+		print path
+		return style_render(clientsocket, path)
 	else:
-		path = 'templates/sorry.html'
-	return render(clientsocket, path, params)
+		clientsocket.send('HTTP/1.0 404 \n\n')
+
 
 
 # ------- Handles post requests --------
 def post(clientsocket, request):
 	params = request['body']
-	if request['path'] in routing_dictionary.keys():
+	if request['path'] in routing_dictionary:
 		routing_value = routing_dictionary[request['path']]
-		if type(routing_value) is tuple:
-			print 'here'
-			params = routing_value[0](params)
-			path = routing_value[1]
+		if type(routing_value) == types.FunctionType:
+			return routing_value(request, clientsocket)
 		else: 
 			path = routing_value 
+			return render(clientsocket, path, params)
 	else:
-		path = 'templates/sorry.html'
-	return render(clientsocket, path, params)
+		clientsocket.send('HTTP/1.0 404 \n\n')
+	
 
 
 # ----- sends http msg and page to client socket, then closes socket -----
-def render(clientsocket, path, params):
-	print params, 'params in render'
+def render(clientsocket, path, params, header = None):
 	message_file = open(path, 'r')
 	message_text = message_file.read()
 	message_file.close()
 	new_msg = message_text % params
-	clientsocket.send('HTTP/1.0 200 OK\n\n')
+	header_string = ''
+	if header != None:
+		for item in header:
+			header_string = header_string + item + ': ' + header[item] + '; ' + '\n'
+	clientsocket.send('HTTP/1.0 200 OK\n%s \n\n' %header_string)
 	clientsocket.send(new_msg)
 	clientsocket.close()
 
 
+def style_render(clientsocket, path):
+	message_file = open(path, 'r')
+	message_text = message_file.read()
+	message_file.close()
+	clientsocket.send('HTTP/1.0 200 OK\n\n')
+	clientsocket.send(message_text)
+	clientsocket.close()
+
+
 def separate(msg):
-	msg = msg.split(' ')
-	request_type = msg[0]
-	full_path = msg[1]
+	msg = msg.split('\r\n')
+	first_line = msg[0].split(' ')
+	request_type = first_line[0]
+	full_path = first_line[1]
 	
 	if full_path.find('?') > 0:
 		full_path = full_path.split('?')
 		path = full_path[0]
 		query = parse_function(full_path[1])
-		print query
 	else:
 		path = full_path
 		query = {}
 
 	raw_body = msg[-1]
-	start = raw_body.find("\r\n\r\n") + 4
-	body = parse_function(raw_body[start:])
+	# start = raw_body.find("\r\n\r\n")
+	body = parse_function(msg[-1])
 
-	separate_request = { 'type': request_type, 'path': path, 'query': query, 'body': body }
-	#print separate_request
+	headers = {}
+	num_headers = len(msg) - 2
+	for i in range(1, num_headers):
+		head = msg[i].split(': ')
+		headers.update({head[0] : head[1]})
+
+	separate_request = { 'type': request_type, 'path': path, 'headers': headers, 'query': query, 'body': body }
 	return separate_request
+
+
 
 # ------ Parses raw request to find user input ------ 
 def parse_function(data):
@@ -92,7 +111,6 @@ def parse_function(data):
 		end_of_input = data.find('&')
 		data_key = data[0:start_of_input - 1]
 		if end_of_input > 0:
-
 			data_value = data[start_of_input:end_of_input]
 			data = data[end_of_input + 1:]
 		else:
@@ -100,13 +118,11 @@ def parse_function(data):
 			data = ''
 		data_value = data_value.replace('+', ' ')
 		parsed_data[data_key] = urllib.unquote(data_value)
-	#print parsed_data
 	return parsed_data #returns a dictionary 
 
 routing_dictionary = {}
 
 def go(routing_dict):
-
 	global routing_dictionary 
 	routing_dictionary = routing_dict
 

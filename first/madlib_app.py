@@ -1,9 +1,9 @@
-import server
+import chapeau
 
 
-routing_dictionary = {'/' : 'templates/user_info.html', 
-					'/get_user_info' : 'templates/get_user_info.html', 
-					'/welcome' : 'templates/passing_vars.html'  }
+routing_dictionary = {'/' : 'views/user_info.html', 
+					'/get_user_info' : 'views/get_user_info.html', 
+					'/welcome' : 'views/passing_vars.html'  }
 
-server.go(routing_dictionary)
+chapeau.go(routing_dictionary)
 
