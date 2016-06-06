@@ -104,7 +104,7 @@ Here we have implimented our form to submit a POST request but it should be ment
 
 ###### ROUTING TO FUNCTIONS 
 
-In the mad-libbs-style-app, the data substition is done for you completely, and so you, as a user of Chapeau, never handle the variables directly. While this is nice for mad-libbs-style-apps, it can be extremely limiting as well.  Functions to the rescue! 
+In the mad-libbs-style-app, the data substition is done for you completely, and so you, as a user of Chapeau, never handle the variables directly. While this is nice for mad-libbs-style-apps, it can be extremely limiting as well.  Functions to the rescue!
 
 If you'd like to gain a little more control over your program we suggest using functions in the routing dictionary.  To do this, simply make the value of a specific URL be the name of a function which you have previously defined.  Here is what you need to know about the function: 
 
@@ -156,10 +156,10 @@ Here is what the requests object looks like in the POST request of the  previous
 
 
 ###### STORING DATA 
-How can we store data to be retrieved later?  It might be tempting to make global variables in your app, which you're functions can update and then access later. However global variables will not allow for data to be stored separately for more than one client. Here we will discuss how Cookies can be used in a Chapeau app to store data.
+How can we store data to be retrieved later?  It might be tempting to make global variables in your app, which your functions can update and then access later. However global variables will not allow for data to be stored separately for more than one client. Here we will discuss how Cookies can be used in a Chapeau app to store data.
 
 Let's start with an example:
-Suppose we want to impliment a quiz which asks the user one question per page.  Before rendering the results page we want to retreive all of the user's answers at once in order to analyze them and determine the result.  Here's how an app might look in this situation: 
+Suppose we want to implement a quiz which asks the user one question per page.  Before rendering the results page, we want to retrieve all of the user's answers at once in order to analyze them and determine the result.  Here's how an app might look in this situation: 
 
 ```python
 import chapeau
