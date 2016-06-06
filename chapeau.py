@@ -51,9 +51,8 @@ def post(clientsocket, request):
 
 # ----- sends http msg and page to client socket, then closes socket -----
 def render(clientsocket, path, params, header = None):
-	message_file = open(path, 'r')
-	message_text = message_file.read()
-	message_file.close()
+	with open(path, 'r') as message_file:
+		message_text = message_file.read()
 	new_msg = message_text % params
 	header_string = ''
 	if header != None:
