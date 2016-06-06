@@ -141,17 +141,24 @@ def route(path):
         return wrapper
     return route_decorator
 
-# Example usage of the route decorator
-# @route('/hello')
-#   def hello():
-#       return "<p>I love NY!!</p>"
+## Example usage of the route decorator
+##
+## @route('/hello')
+##   def hello():
+##      return "<p>I love NY!!</p>"
 
-## Example usage of chapeau.go
+## Example usage in an app
+##
 ## import chapeau
 ## 
 ## @route('/')
 ## def index():
-##      chapeau.render
+##      chapeau.render(client, '/index.html', args)
+## 
+## chapeau.go(chapeau.routing_dictionary)
+##
+## :D
+
 def go(routing_dict):
     global routing_dictionary 
     routing_dictionary = routing_dict
