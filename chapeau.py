@@ -125,6 +125,7 @@ def add_route(path, handler):
         params:
             path:   <str>
             handler: <function>
+
         Adds the path as a key to the routing dictionary and maps
         it to the function assigned to the path 
     '''
@@ -133,6 +134,15 @@ def add_route(path, handler):
     routing_dictionary[path] = handler
 
 def route(path):
+    '''
+        Decorator function
+        params:
+            path: <str>
+        Example:
+            @route('/user/leta')
+            def user_leta(request, client):
+                chapeau.render(client, '/path/to/file', *args, **kwargs)
+    '''
     def route_decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -144,7 +154,7 @@ def route(path):
 ## Example usage of the route decorator
 ##
 ## @route('/hello')
-##   def hello():
+##   def hello(request, client):
 ##      return "<p>I love NY!!</p>"
 
 ## Example usage in an app
@@ -152,8 +162,8 @@ def route(path):
 ## import chapeau
 ## 
 ## @route('/')
-## def index():
-##      chapeau.render(client, '/index.html', args)
+## def index(request, client):
+##      chapeau.render(client, '/index.html', *args, **kwargs)
 ## 
 ## chapeau.go(chapeau.routing_dictionary)
 ##
