@@ -65,9 +65,8 @@ def render(clientsocket, path, params, header = None):
 
 
 def style_render(clientsocket, path):
-	message_file = open(path, 'r')
-	message_text = message_file.read()
-	message_file.close()
+	with open(path, 'r') as message_file:
+		message_text = message_file.read()
 	clientsocket.send('HTTP/1.0 200 OK\n\n')
 	clientsocket.send(message_text)
 	clientsocket.close()
