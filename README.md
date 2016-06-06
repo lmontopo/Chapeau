@@ -1,6 +1,6 @@
 ### INTRODUCTION
 
-Chapeau is a very lightweight web framework build primarely for learning purposes.  Chapeau can do for you: 
+Chapeau is a very lightweight web framework built primarily for learning purposes.  Chapeau can do for you: 
 
 - it includes a web server, written using the Python socket Module
 - parses raw http requests 
