@@ -1,6 +1,6 @@
 ### INTRODUCTION
 
-Chapeau is a very lightweight web framework build primarely for learning purposes.  Chapeau can do for you: 
+Chapeau is a very lightweight web framework built primarily for learning purposes.  Chapeau can do for you: 
 
 - it includes a web server, written using the Python socket Module
 - parses raw http requests 
@@ -104,7 +104,7 @@ Here we have implimented our form to submit a POST request but it should be ment
 
 ###### ROUTING TO FUNCTIONS 
 
-In the mad-libbs-style-app, the data substition is done for you completely, and so you, as a user of Chapeau, never handle the variables directly. While this is nice for mad-libbs-style-apps, it can be extremely limiting as well.  Functions to the rescue! 
+In the mad-libbs-style-app, the data substition is done for you completely, and so you, as a user of Chapeau, never handle the variables directly. While this is nice for mad-libbs-style-apps, it can be extremely limiting as well.  Functions to the rescue!
 
 If you'd like to gain a little more control over your program we suggest using functions in the routing dictionary.  To do this, simply make the value of a specific URL be the name of a function which you have previously defined.  Here is what you need to know about the function: 
 
@@ -128,7 +128,7 @@ def age_plus_five(request, client):
 	print my_dict, 'dict'
 	if 'age' in my_dict:
 		my_dict['age'] = int(my_dict['age']) + 5
-	return server.render(client, 'templates/passing_vars.html', my_dict)
+	return chapeau.render(client, 'templates/passing_vars.html', my_dict)
 routing_dictionary = {
 					'/home' : 'templates/user_info.html', 
 					'/welcome' : age_plus_five  }
@@ -156,10 +156,10 @@ Here is what the requests object looks like in the POST request of the  previous
 
 
 ###### STORING DATA 
-How can we store data to be retrieved later?  It might be tempting to make global variables in your app, which you're functions can update and then access later. However global variables will not allow for data to be stored separately for more than one client. Here we will discuss how Cookies can be used in a Chapeau app to store data.
+How can we store data to be retrieved later?  It might be tempting to make global variables in your app, which your functions can update and then access later. However global variables will not allow for data to be stored separately for more than one client. Here we will discuss how Cookies can be used in a Chapeau app to store data.
 
 Let's start with an example:
-Suppose we want to impliment a quiz which asks the user one question per page.  Before rendering the results page we want to retreive all of the user's answers at once in order to analyze them and determine the result.  Here's how an app might look in this situation: 
+Suppose we want to implement a quiz which asks the user one question per page.  Before rendering the results page, we want to retrieve all of the user's answers at once in order to analyze them and determine the result.  Here's how an app might look in this situation: 
 
 ```python
 import chapeau
@@ -310,5 +310,5 @@ Lets walk through what happens as this app runs.
 * Assuming that the client has actually answered the question (as opposed to simply clicking submit without answering the question), then the first condition in the function will be satisfied. The program will set a header to be "Set-Cookie", which will contain the clients answer to question 1.  This header is included in the render function where we re-direct to question 2.  
 * Then the client answers question 2, presses submit, and we do the same thing for question 2.  
 * Then when we get to question 3, we find the cookies header in the requests object, and find the answers to the previous two questions. These answers and the answer to question 3 are saved in a dictionary called `user_input`.
-* `user_input` is passed to the `make_decision` function which analyses these answers to determin a result, either 'stupid-head',  'superhero' or 'normal human'.  This result is then sent back to the `third` function and saved as `result`.  
+* `user_input` is passed to the `make_decision` function which analyses these answers to determine a result, either 'stupid-head',  'superhero' or 'normal human'.  This result is then sent back to the `third` function and saved as `result`.  
 * The third function then renders the result page to the client with the appropriate quiz result by calling `render(client,'views/result.html', result)`. 
