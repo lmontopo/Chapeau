@@ -144,11 +144,8 @@ def route(path):
 				chapeau.render(client, '/path/to/file', *args, **kwargs)
 	'''
 	def route_decorator(func):
-		@wraps(func)
-		def wrapper(*args, **kwargs):
-			add_route(path, func)
-			return func(*args, **kwargs)
-		return wrapper
+		add_route(path, func)
+		return func(*args, **kwargs)
 	return route_decorator
 
 ## Example usage of the route decorator
