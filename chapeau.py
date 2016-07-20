@@ -139,18 +139,18 @@ def route(path):
 		params:
 			path: <str>
 		Example:
-			@route('/user/leta')
+			@chapeau.route('/user/leta')
 			def user_leta(request, client):
-				chapeau.render(client, '/path/to/file', *args, **kwargs)
+				chapeau.render(client, '/path/to/file')
 	'''
 	def route_decorator(func):
 		add_route(path, func)
-		return func(*args, **kwargs)
+		return func
 	return route_decorator
 
 ## Example usage of the route decorator
 ##
-## @route('/hello')
+## @chapeau.route('/hello')
 ##   def hello(request, client):
 ##      return "<p>I love NY!!</p>"
 
@@ -158,7 +158,7 @@ def route(path):
 ##
 ## import chapeau
 ## 
-## @route('/')
+## @chapeau.route('/')
 ## def index(request, client):
 ##      chapeau.render(client, '/index.html', *args, **kwargs)
 ## 
