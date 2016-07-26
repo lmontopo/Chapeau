@@ -1,7 +1,7 @@
 import socket 
 import types
 import urllib
-
+from functools import wraps
 
 #------- Receive messages from Clients ----------
 def listen(clientsocket):
@@ -120,6 +120,52 @@ def parse_function(data):
 
 routing_dictionary = {}
 
+def add_route(path, handler):
+	'''
+		params:
+			path:   <str>
+			handler: <function>
+
+		Adds the path as a key to the routing dictionary and maps
+		it to the function assigned to the path 
+	'''
+	if not isinstance(path, str):
+		raise TypeError
+	routing_dictionary[path] = handler
+
+def route(path):
+	'''
+		Decorator function
+		params:
+			path: <str>
+		Example:
+			@chapeau.route('/user/leta')
+			def user_leta(request, client):
+				chapeau.render(client, '/path/to/file')
+	'''
+	def route_decorator(func):
+		add_route(path, func)
+		return func
+	return route_decorator
+
+## Example usage of the route decorator
+##
+## @chapeau.route('/hello')
+##   def hello(request, client):
+##      return "<p>I love NY!!</p>"
+
+## Example usage in an app
+##
+## import chapeau
+## 
+## @chapeau.route('/')
+## def index(request, client):
+##      chapeau.render(client, '/index.html', *args, **kwargs)
+## 
+## chapeau.go(chapeau.routing_dictionary)
+##
+## :D
+
 def go(routing_dict):
 	global routing_dictionary 
 	routing_dictionary = routing_dict
@@ -132,7 +178,7 @@ def go(routing_dict):
 	serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 	serversocket.bind(('', port))
-	serversocket.listen(5) 	
+	serversocket.listen(5)  
 
 	#this loop ensures new clients are always accepted
 	#remember each client socket can only handle one http request before closing.
