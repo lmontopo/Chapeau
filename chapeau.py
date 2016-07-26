@@ -1,7 +1,6 @@
-import socket 
+import socket
 import types
 import urllib
-from functools import wraps
 
 #------- Receive messages from Clients ----------
 def listen(clientsocket):
@@ -12,10 +11,10 @@ def listen(clientsocket):
 			get(clientsocket, request)
 		if request['type'] == "POST":
 			post(clientsocket, request)
-	
 
 
-# ------ Handles get requests ------- 
+
+# ------ Handles get requests -------
 def get(clientsocket, request):
 	params = request['query']
 	if request['path'] in routing_dictionary:
@@ -41,12 +40,12 @@ def post(clientsocket, request):
 		routing_value = routing_dictionary[request['path']]
 		if type(routing_value) == types.FunctionType:
 			return routing_value(request, clientsocket)
-		else: 
-			path = routing_value 
+		else:
+			path = routing_value
 			return render(clientsocket, path, params)
 	else:
 		clientsocket.send('HTTP/1.0 404 \n\n')
-	
+
 
 
 # ----- sends http msg and page to client socket, then closes socket -----
@@ -76,7 +75,7 @@ def separate(msg):
 	first_line = msg[0].split(' ')
 	request_type = first_line[0]
 	full_path = first_line[1]
-	
+
 	if full_path.find('?') > 0:
 		full_path = full_path.split('?')
 		path = full_path[0]
@@ -100,7 +99,7 @@ def separate(msg):
 
 
 
-# ------ Parses raw request to find user input ------ 
+# ------ Parses raw request to find user input ------
 def parse_function(data):
 	parsed_data = {}
 
@@ -116,7 +115,7 @@ def parse_function(data):
 			data = ''
 		data_value = data_value.replace('+', ' ')
 		parsed_data[data_key] = urllib.unquote(data_value)
-	return parsed_data #returns a dictionary 
+	return parsed_data #returns a dictionary
 
 routing_dictionary = {}
 
@@ -127,7 +126,7 @@ def add_route(path, handler):
 			handler: <function>
 
 		Adds the path as a key to the routing dictionary and maps
-		it to the function assigned to the path 
+		it to the function assigned to the path
 	'''
 	if not isinstance(path, str):
 		raise TypeError
@@ -157,17 +156,17 @@ def route(path):
 ## Example usage in an app
 ##
 ## import chapeau
-## 
+##
 ## @chapeau.route('/')
 ## def index(request, client):
 ##      chapeau.render(client, '/index.html', *args, **kwargs)
-## 
+##
 ## chapeau.go(chapeau.routing_dictionary)
 ##
 ## :D
 
 def go(routing_dict):
-	global routing_dictionary 
+	global routing_dictionary
 	routing_dictionary = routing_dict
 
 	#create server socket on port 9999
@@ -178,7 +177,7 @@ def go(routing_dict):
 	serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 	serversocket.bind(('', port))
-	serversocket.listen(5)  
+	serversocket.listen(5)
 
 	#this loop ensures new clients are always accepted
 	#remember each client socket can only handle one http request before closing.
